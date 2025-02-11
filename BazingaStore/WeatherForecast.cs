@@ -11,5 +11,7 @@ namespace BazingaStore
         public string? Summary { get; set; }
 
         public int Teste { get; set; }
+
+        public int BoaNoiteBruno { get; set; }
     }
 }
