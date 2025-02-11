@@ -1,0 +1,6 @@
+@BazingaStore_HostAddress = http://localhost:5286
+
+GET {{BazingaStore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
