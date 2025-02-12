@@ -12,8 +12,14 @@ namespace BazingaStore.Data
         }
         public DbSet<BazingaStore.Model.Produto> Produto { get; set; } = default!;
         public DbSet<BazingaStore.Model.Categoria> Categoria { get; set; } = default!;
-        public DbSet<BazingaStore.Model.Venda> Venda { get; set; } = default!;
-        public DbSet<BazingaStore.Data.Pagamento> Pagamento { get; set; } = default!;
-        public DbSet<BazingaStore.Model.Pedido> Pedido { get; set; } = default!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Produto>().ToTable("Produtos");
+            modelBuilder.Entity<Categoria>().ToTable("Categorias");
+        }
+        public DbSet<BazingaStore.Model.Carrinho> Carrinho { get; set; } = default!;
+        public DbSet<BazingaStore.Model.CarrinhoItem> CarrinhoItem { get; set; } = default!;
+        public DbSet<BazingaStore.Model.Avaliacao> Avaliacao { get; set; } = default!;
     }
 }
