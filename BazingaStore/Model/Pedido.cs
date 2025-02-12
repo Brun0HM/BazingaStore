@@ -5,6 +5,8 @@
         public Guid PedidoId { get; set; }
         public Guid UsuarioId { get; set; }
         public Guid ProdutoId { get; set; }
+
+        public Guid CupomDescontoId { get; set; }
         public DateTime DataPedido { get; set; }
         public enum StatusPedido
         {
