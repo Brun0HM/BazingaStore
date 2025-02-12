@@ -11,5 +11,7 @@ namespace BazingaStore.Data
         }
         public DbSet<BazingaStore.Model.Produto> Produto { get; set; } = default!;
         public DbSet<BazingaStore.Model.Categoria> Categoria { get; set; } = default!;
+        public DbSet<BazingaStore.Model.CupomDesconto> CupomDesconto { get; set; } = default!;
+        public DbSet<BazingaStore.Model.ItemVenda> ItemVenda { get; set; } = default!;
     }
 }
