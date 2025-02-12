@@ -18,6 +18,7 @@ namespace BazingaStore.Data
             modelBuilder.Entity<Categoria>().ToTable("Categorias");
         }
         public DbSet<BazingaStore.Model.Carrinho> Carrinho { get; set; } = default!;
-        //public DbSet<BazingaStore.Model.ItemCarrinho> ItemCarrinho { get; set; } = default!;
+        public DbSet<BazingaStore.Model.CarrinhoItem> CarrinhoItem { get; set; } = default!;
+        public DbSet<BazingaStore.Model.Avaliacao> Avaliacao { get; set; } = default!;
     }
 }
