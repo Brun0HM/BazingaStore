@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BazingaStore.Model;
+using BazingaStore.Data;
 
 namespace BazingaStore.Data
 {
@@ -11,7 +12,14 @@ namespace BazingaStore.Data
         }
         public DbSet<BazingaStore.Model.Produto> Produto { get; set; } = default!;
         public DbSet<BazingaStore.Model.Categoria> Categoria { get; set; } = default!;
-        public DbSet<BazingaStore.Model.CupomDesconto> CupomDesconto { get; set; } = default!;
-        public DbSet<BazingaStore.Model.ItemVenda> ItemVenda { get; set; } = default!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Produto>().ToTable("Produtos");
+            modelBuilder.Entity<Categoria>().ToTable("Categorias");
+        }
+        public DbSet<BazingaStore.Model.Carrinho> Carrinho { get; set; } = default!;
+        public DbSet<BazingaStore.Model.CarrinhoItem> CarrinhoItem { get; set; } = default!;
+        public DbSet<BazingaStore.Model.Avaliacao> Avaliacao { get; set; } = default!;
     }
 }
