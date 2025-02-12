@@ -1,25 +1,23 @@
-﻿namespace BazingaStore.Data
+﻿namespace BazingaStore.Model
 {
     public class Pagamento
     {
         public Guid PagamentoId { get; set; }
-
         public Guid PedidoId { get; set; }
         public enum MetodoPagamento
         {
             CartaoCredito,
-            CartaoDebito,
+            CaertaoDebito,
             Boleto,
             Pix
         }
         public enum StatusPagamento
         {
-            Pendente,
             Aprovado,
+            aguardando,
+            Pago,
             Recusado
         }
-
         public DateTime DataPagamento { get; set; }
-
     }
 }
