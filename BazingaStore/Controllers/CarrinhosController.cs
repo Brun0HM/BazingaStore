@@ -104,5 +104,92 @@ namespace BazingaStore.Controllers
         {
             return _context.Carrinho.Any(e => e.CarrinhoId == id);
         }
+
+        // Novo endpoint para calcular o valor total do item
+        [HttpPost("calcular-valor-item")]
+        public async Task<ActionResult<decimal>> CalcularValorItem(Guid produtoId, int quantidade)
+        {
+            var produto = await _context.Produto.FindAsync(produtoId);
+            if (produto == null)
+            {
+                return NotFound("Produto não encontrado.");
+            }
+
+            decimal valorTotalItem = produto.Preco * quantidade;
+            return Ok(valorTotalItem);
+        }
+
+        // Novo endpoint para calcular o valor total do carrinho
+        [HttpPost("calcular-valor-carrinho")]
+        public async Task<ActionResult<decimal>> CalcularValorCarrinho(Guid carrinhoId)
+        {
+            var carrinho = await _context.Carrinho
+                .Include(c => c.Itens)
+                .ThenInclude(i => i.ProdutoId)
+                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinhoId);
+
+            if (carrinho == null)
+            {
+                return NotFound("Carrinho não encontrado.");
+            }
+
+            decimal valorTotalCarrinho = carrinho.Itens.Sum(item => item.PrecoUnitario * item.Quantidade);
+            return Ok(valorTotalCarrinho);
+        }
+
+        // Novo endpoint para adicionar um item ao carrinho
+        [HttpPost("{carrinhoId}/adicionar-item")]
+        public async Task<IActionResult> AdicionarItem(Guid carrinhoId, [FromBody] CarrinhoItem item)
+        {
+            var carrinho = await _context.Carrinho
+                .Include(c => c.Itens)
+                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinhoId);
+
+            if (carrinho == null)
+            {
+                return NotFound("Carrinho não encontrado.");
+            }
+
+            var produto = await _context.Produto.FindAsync(item.ProdutoId);
+            if (produto == null)
+            {
+                return NotFound("Produto não encontrado.");
+            }
+
+            item.PrecoUnitario = produto.Preco;
+            carrinho.Itens.Add(item);
+            carrinho.Total = carrinho.Itens.Sum(i => i.PrecoUnitario * i.Quantidade);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(carrinho);
+        }
+
+        // Novo endpoint para remover um item do carrinho
+        [HttpDelete("{carrinhoId}/remover-item/{itemId}")]
+        public async Task<IActionResult> RemoverItem(Guid carrinhoId, Guid itemId)
+        {
+            var carrinho = await _context.Carrinho
+                .Include(c => c.Itens)
+                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinhoId);
+
+            if (carrinho == null)
+            {
+                return NotFound("Carrinho não encontrado.");
+            }
+
+            var item = carrinho.Itens.FirstOrDefault(i => i.CarrinhoItemId == itemId);
+            if (item == null)
+            {
+                return NotFound("Item não encontrado.");
+            }
+
+            carrinho.Itens.Remove(item);
+            carrinho.Total = carrinho.Itens.Sum(i => i.PrecoUnitario * i.Quantidade);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(carrinho);
+        }
     }
 }
