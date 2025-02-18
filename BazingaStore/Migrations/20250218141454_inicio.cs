@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BazingaStore.Migrations
 {
     /// <inheritdoc />
-    public partial class Model : Migration
+    public partial class inicio : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -120,6 +120,19 @@ namespace BazingaStore.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ItemVenda", x => x.ItemVendaId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pagamento",
+                columns: table => new
+                {
+                    PagamentoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PedidoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DataPagamento = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Pagamento", x => x.PagamentoId);
                 });
 
             migrationBuilder.CreateTable(
@@ -381,6 +394,9 @@ namespace BazingaStore.Migrations
 
             migrationBuilder.DropTable(
                 name: "ItemVenda");
+
+            migrationBuilder.DropTable(
+                name: "Pagamento");
 
             migrationBuilder.DropTable(
                 name: "Pedido");

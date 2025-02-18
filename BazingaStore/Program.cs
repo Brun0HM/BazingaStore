@@ -72,11 +72,10 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.MapGroup("/Users").MapIdentityApi<IdentityUser>();
 
 

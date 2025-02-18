@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BazingaStore.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250212200210_Model")]
-    partial class Model
+    [Migration("20250218141454_inicio")]
+    partial class inicio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -156,6 +156,23 @@ namespace BazingaStore.Migrations
                     b.HasKey("ItemVendaId");
 
                     b.ToTable("ItemVenda");
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Pagamento", b =>
+                {
+                    b.Property<Guid>("PagamentoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DataPagamento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PedidoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PagamentoId");
+
+                    b.ToTable("Pagamento");
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
