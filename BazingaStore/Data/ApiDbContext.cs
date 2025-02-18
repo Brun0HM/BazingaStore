@@ -10,8 +10,13 @@ namespace BazingaStore.Data
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
         {
         }
-        public DbSet<BazingaStore.Model.Produto> Produto { get; set; } = default!;
-        public DbSet<BazingaStore.Model.Categoria> Categoria { get; set; } = default!;
+        public DbSet<Produto> Produto { get; set; } = default!;
+        public DbSet<Categoria> Categoria { get; set; } = default!;
+        public DbSet<CupomDesconto> CupomDesconto { get; set; } = default!;
+        public DbSet<ItemVenda> ItemVenda { get; set; }
+        public DbSet<Pedido> Pedido { get; set; }
+        public DbSet<Venda> Venda { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
