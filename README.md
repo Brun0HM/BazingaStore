@@ -2,10 +2,11 @@
 A melhor loja Geek do Brasil!
 
 
- ###  💼Equipe:
 
-*   @ThiagoM22
-*   @rattin1
+
+ ###  💼Equipe:
+* [@ThiagoM22](https://github.com/ThiagoM22)   
+* [@rattin1](https://github.com/rattin1)   
 
 
 
