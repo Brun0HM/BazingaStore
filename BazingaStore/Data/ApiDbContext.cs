@@ -12,10 +12,14 @@ namespace BazingaStore.Data
         }
         public DbSet<Produto> Produto { get; set; } = default!;
         public DbSet<Categoria> Categoria { get; set; } = default!;
-        public DbSet<CupomDesconto> CupomDesconto { get; set; } = default!;
+        public DbSet<CupomDesconto> CupomDesconto
+        {
+            get; set;
+        }
         public DbSet<ItemVenda> ItemVenda { get; set; }
         public DbSet<Pedido> Pedido { get; set; }
         public DbSet<Venda> Venda { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

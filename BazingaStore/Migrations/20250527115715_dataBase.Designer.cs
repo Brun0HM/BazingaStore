@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BazingaStore.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250521121957_mudancaDataBase")]
-    partial class mudancaDataBase
+    [Migration("20250527115715_dataBase")]
+    partial class dataBase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Exemplo de uso com Entity Framework Core
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
