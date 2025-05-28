@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BazingaStore.Model;
-using BazingaStore.Data;
 
 namespace BazingaStore.Data
 {
-    public class ApiDbContext : IdentityDbContext
+    public class ApiDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
     {
-        public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
-        {
-        }
-
         public DbSet<Produto> Produto { get; set; } = default!;
         public DbSet<Categoria> Categoria { get; set; } = default!;
         public DbSet<CupomDesconto> CupomDesconto { get; set; }
@@ -21,6 +16,9 @@ namespace BazingaStore.Data
         public DbSet<BazingaStore.Model.CarrinhoItem> CarrinhoItem { get; set; } = default!;
         public DbSet<BazingaStore.Model.Avaliacao> Avaliacao { get; set; } = default!;
         public DbSet<BazingaStore.Model.Pagamento> Pagamento { get; set; } = default!;
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

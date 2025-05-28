@@ -78,6 +78,8 @@ namespace BazingaStore.Controllers
         [HttpPost]
         public async Task<ActionResult<Produto>> PostProduto(Produto produto)
         {
+            var categoria = await _context.Categoria.FindAsync(produto.CategoriaId);
+            produto.Categoria = categoria;
             _context.Produto.Add(produto);
             await _context.SaveChangesAsync();
 

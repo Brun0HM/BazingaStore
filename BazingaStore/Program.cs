@@ -1,35 +1,42 @@
 using BazingaStore.Data;
+using BazingaStore.Model; // não esquece esse using
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Exemplo de uso com Entity Framework Core
+
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
-builder.Services.AddDbContext<ApiDbContext>(options =>
+// Use apenas UM dos AddIdentityApiEndpoints, preferencialmente com seu modelo User
+builder.Services.AddIdentityApiEndpoints<User>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 4;
+})
+.AddEntityFrameworkStores<ApiDbContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        builder =>
-        {
-            builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
 });
 
-// Add services to the container.
-
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -43,48 +50,42 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
-    {
-        new OpenApiSecurityScheme
         {
-        Reference = new OpenApiReference
+            new OpenApiSecurityScheme
             {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
             },
-            Scheme = "oauth2",
-            Name = "Bearer",
-            In = ParameterLocation.Header,
-
-        },
-        new List<string>()
+            new List<string>()
         }
     });
 });
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
-{
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedAccount = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 4;
-})
-     .AddEntityFrameworkStores<ApiDbContext>()
-    .AddDefaultTokenProviders();
-
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGroup("/Users").MapIdentityApi<IdentityUser>();
+// Mapeie os endpoints de identidade apenas uma vez
+app.MapIdentityApi<User>();
+app.MapGet("/", (ClaimsPrincipal user) => user.Identity!.Name)
+    .RequireAuthorization();
 
+app.MapPost("/logout", async (SignInManager<User> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Ok();
+});
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
