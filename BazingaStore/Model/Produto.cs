@@ -2,7 +2,7 @@
 {
     public class Produto
     {
-        public Guid ProdutoId { get; set; }
+        public Guid ProdutoId { get; set; } = Guid.NewGuid();
         public string Nome { get; set; }
         public string Descricao { get; set; }
         public decimal Preco { get; set; }
