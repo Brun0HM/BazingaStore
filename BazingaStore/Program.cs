@@ -72,10 +72,16 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Mapeie os endpoints de identidade apenas uma vez
+// Mapeie os endpoints de identidade apenas uma vez     
+
 app.MapIdentityApi<User>();
-app.MapGet("/", (ClaimsPrincipal user) => user.Identity!.Name)
-    .RequireAuthorization();
+app.MapGet("user", (ClaimsPrincipal user) =>
+{
+    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier); // ID do usuário
+    var userName = user.Identity?.Name; // Nome/Email
+
+    return new { UserId = userId, UserName = userName };
+}).RequireAuthorization();
 
 app.MapPost("/logout", async (SignInManager<User> signInManager) =>
 {
