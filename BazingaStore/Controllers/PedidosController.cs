@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BazingaStore.Data;
 using BazingaStore.Model;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Azure.Core;
 
 namespace BazingaStore.Controllers
 {
@@ -78,11 +81,96 @@ namespace BazingaStore.Controllers
         [HttpPost]
         public async Task<ActionResult<Pedido>> PostPedido(Pedido pedido)
         {
+
+            // Obter usuário autenticado
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Usuário não autenticado");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound("Usuário não encontrado");
+
+            // Buscar produto e cupom
+            var produto = await _context.Produto.FindAsync(pedido.ProdutoId);
+            if (produto == null)
+                return NotFound("Produto não encontrado");
+
+            CupomDesconto cupom = null;
+            decimal valorOriginal = produto.Preco;
+            decimal valorDesconto = 0;
+
+            if (pedido.CupomDescontoId.HasValue)
+            {
+                cupom = await _context.CupomDesconto.FindAsync(pedido.CupomDescontoId.Value);
+                if (cupom == null || !cupom.Ativo || cupom.DataValidade < DateTime.UtcNow)
+                    return BadRequest("Cupom inválido");
+
+                valorDesconto = valorOriginal * (cupom.PercentualDesconto / 100m);
+            }
+
+            decimal valorTotal = valorOriginal - valorDesconto;
             _context.Pedido.Add(pedido);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetPedido", new { id = pedido.PedidoId }, pedido);
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> CriarPedido([FromBody] Pedido request)
+        //{
+        //    // Obter usuário autenticado
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var user = await _userManager.FindByIdAsync(userId);
+        //    // Se nao exitir usuario, retorne NotFound()
+
+
+        //    // Buscar produto e cupom
+        //    var produto = await _context.Produto.FindAsync(request.ProdutoId);
+        //    if (produto == null)
+        //        return NotFound("Produto não encontrado");
+
+        //    CupomDesconto cupom = null;
+        //    decimal valorOriginal = produto.Preco;
+        //    decimal valorDesconto = 0;
+
+        //    if (request.CupomDescontoId.HasValue)
+        //    {
+        //        cupom = await _context.CupomDesconto.FindAsync(request.CupomDescontoId.Value);
+        //        if (cupom == null || !cupom.Ativo || cupom.DataValidade < DateTime.UtcNow)
+        //            return BadRequest("Cupom inválido");
+
+        //        valorDesconto = valorOriginal * (cupom.PercentualDesconto / 100m);
+        //    }
+
+        //    decimal valorTotal = valorOriginal - valorDesconto;
+
+        //    // Criar o pedido
+        //    var pedido = new Pedido
+        //    {
+        //        UserId = Guid.Parse(userId),
+        //        ProdutoId = request.ProdutoId,
+        //        CupomDescontoId = cupom?.CupomDescontoId,
+        //        ValorOriginal = valorOriginal,
+        //        ValorDesconto = valorDesconto,
+        //        ValorTotal = valorTotal,
+        //        DataPedido = DateTime.Now
+        //    };
+
+        //    _context.Pedido.Add(pedido);
+        //    await _context.SaveChangesAsync();
+
+        //    // Retornar o pedido com os cálculos
+        //    return Ok(new
+        //    {
+        //        pedido.PedidoId,
+        //        Produto = produto.Nome,
+        //        ValorOriginal = pedido.ValorOriginal,
+        //        Desconto = pedido.ValorDesconto,
+        //        ValorTotal = pedido.ValorTotal,
+        //        Data = pedido.DataPedido
+        //    });
+        //}
 
         // DELETE: api/Pedidos/5
         [HttpDelete("{id}")]

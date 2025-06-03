@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\UsuarioController.cs" />
+    <Compile Remove="Model\User.cs" />
     <Compile Remove="Model\Usuario.cs" />
   </ItemGroup>
 

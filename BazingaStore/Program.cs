@@ -14,7 +14,7 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Use apenas UM dos AddIdentityApiEndpoints, preferencialmente com seu modelo User
-builder.Services.AddIdentityApiEndpoints<User>(options =>
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedAccount = false;
@@ -72,22 +72,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Mapeie os endpoints de identidade apenas uma vez     
-
-app.MapIdentityApi<User>();
-app.MapGet("user", (ClaimsPrincipal user) =>
-{
-    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier); // ID do usuário
-    var userName = user.Identity?.Name; // Nome/Email
-
-    return new { UserId = userId, UserName = userName };
-}).RequireAuthorization();
-
-app.MapPost("/logout", async (SignInManager<User> signInManager) =>
-{
-    await signInManager.SignOutAsync();
-    return Results.Ok();
-});
 
 app.UseHttpsRedirection();
 
@@ -99,3 +83,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

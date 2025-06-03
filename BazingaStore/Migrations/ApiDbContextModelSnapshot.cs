@@ -45,7 +45,7 @@ namespace BazingaStore.Migrations
 
                     b.HasKey("AvaliacaoId");
 
-                    b.ToTable("Avaliacao");
+                    b.ToTable("Avaliacoes", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Carrinho", b =>
@@ -65,7 +65,7 @@ namespace BazingaStore.Migrations
 
                     b.HasKey("CarrinhoId");
 
-                    b.ToTable("Carrinho");
+                    b.ToTable("Carrinhos", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.CarrinhoItem", b =>
@@ -90,7 +90,7 @@ namespace BazingaStore.Migrations
 
                     b.HasIndex("CarrinhoId");
 
-                    b.ToTable("CarrinhoItem");
+                    b.ToTable("CarrinhosItens", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Categoria", b =>
@@ -115,6 +115,9 @@ namespace BazingaStore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Codigo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -127,7 +130,7 @@ namespace BazingaStore.Migrations
 
                     b.HasKey("CupomDescontoId");
 
-                    b.ToTable("CupomDesconto");
+                    b.ToTable("CuponsDesconto", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.ItemVenda", b =>
@@ -153,7 +156,7 @@ namespace BazingaStore.Migrations
 
                     b.HasKey("ItemVendaId");
 
-                    b.ToTable("ItemVenda");
+                    b.ToTable("ItensVenda", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pagamento", b =>
@@ -170,7 +173,7 @@ namespace BazingaStore.Migrations
 
                     b.HasKey("PagamentoId");
 
-                    b.ToTable("Pagamento");
+                    b.ToTable("Pagamentos", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
@@ -179,27 +182,148 @@ namespace BazingaStore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CupomDescontoId")
+                    b.Property<Guid?>("CupomDescontoId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DataPedido")
+                    b.Property<DateTime?>("DataPedido")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("ProdutoId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UsuarioId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("ValorTotal")
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal?>("ValorDesconto")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("ValorOriginal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("ValorTotal")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("PedidoId");
 
-                    b.ToTable("Pedido");
+                    b.HasIndex("CupomDescontoId");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("Pedidos", (string)null);
                 });
 
-            modelBuilder.Entity("BazingaStore.Model.User", b =>
+            modelBuilder.Entity("BazingaStore.Model.Produto", b =>
+                {
+                    b.Property<Guid>("ProdutoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("CategoriaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Estoque")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Imagem")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Preco")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ProdutoId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.ToTable("Produtos", (string)null);
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Venda", b =>
+                {
+                    b.Property<Guid>("VendaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DataVenda")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("usuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("VendaId");
+
+                    b.ToTable("Vendas", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -262,78 +386,6 @@ namespace BazingaStore.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("BazingaStore.Model.Venda", b =>
-                {
-                    b.Property<Guid>("VendaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DataVenda")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ValorTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("usuarioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("VendaId");
-
-                    b.ToTable("Venda");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -417,40 +469,6 @@ namespace BazingaStore.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Produto", b =>
-                {
-                    b.Property<Guid>("ProdutoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid>("CategoriaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Estoque")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Imagem")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Preco")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("ProdutoId");
-
-                    b.HasIndex("CategoriaId");
-
-                    b.ToTable("Produtos", (string)null);
-                });
-
             modelBuilder.Entity("BazingaStore.Model.CarrinhoItem", b =>
                 {
                     b.HasOne("BazingaStore.Model.Carrinho", null)
@@ -458,6 +476,40 @@ namespace BazingaStore.Migrations
                         .HasForeignKey("CarrinhoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
+                {
+                    b.HasOne("BazingaStore.Model.CupomDesconto", "Cupom")
+                        .WithMany()
+                        .HasForeignKey("CupomDescontoId");
+
+                    b.HasOne("BazingaStore.Model.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("Cupom");
+
+                    b.Navigation("Produto");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Produto", b =>
+                {
+                    b.HasOne("BazingaStore.Model.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -471,7 +523,7 @@ namespace BazingaStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BazingaStore.Model.User", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -480,7 +532,7 @@ namespace BazingaStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BazingaStore.Model.User", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -495,7 +547,7 @@ namespace BazingaStore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BazingaStore.Model.User", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -504,22 +556,11 @@ namespace BazingaStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BazingaStore.Model.User", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Produto", b =>
-                {
-                    b.HasOne("BazingaStore.Model.Categoria", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("CategoriaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Categoria");
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Carrinho", b =>

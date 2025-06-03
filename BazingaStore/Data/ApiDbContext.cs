@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using BazingaStore.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using BazingaStore.Model;
 
 namespace BazingaStore.Data
 {
-    public class ApiDbContext(DbContextOptions options) : IdentityDbContext<User>(options)
+    public class ApiDbContext(DbContextOptions options) : IdentityDbContext<IdentityUser>(options)
     {
         public DbSet<Produto> Produto { get; set; } = default!;
         public DbSet<Categoria> Categoria { get; set; } = default!;
@@ -12,10 +13,10 @@ namespace BazingaStore.Data
         public DbSet<ItemVenda> ItemVenda { get; set; }
         public DbSet<Pedido> Pedido { get; set; }
         public DbSet<Venda> Venda { get; set; }
-        public DbSet<BazingaStore.Model.Carrinho> Carrinho { get; set; } = default!;
-        public DbSet<BazingaStore.Model.CarrinhoItem> CarrinhoItem { get; set; } = default!;
-        public DbSet<BazingaStore.Model.Avaliacao> Avaliacao { get; set; } = default!;
-        public DbSet<BazingaStore.Model.Pagamento> Pagamento { get; set; } = default!;
+        public DbSet<Carrinho> Carrinho { get; set; }
+        public DbSet<CarrinhoItem> CarrinhoItem { get; set; }
+        public DbSet<Avaliacao> Avaliacao { get; set; }
+        public DbSet<Pagamento> Pagamento { get; set; }
 
 
 
@@ -27,6 +28,15 @@ namespace BazingaStore.Data
             // Configura os nomes das tabelas
             modelBuilder.Entity<Produto>().ToTable("Produtos");
             modelBuilder.Entity<Categoria>().ToTable("Categorias");
+            modelBuilder.Entity<Pedido>().ToTable("Pedidos");
+            modelBuilder.Entity<CupomDesconto>().ToTable("CuponsDesconto");
+            modelBuilder.Entity<ItemVenda>().ToTable("ItensVenda");
+            modelBuilder.Entity<Venda>().ToTable("Vendas");
+            modelBuilder.Entity<Carrinho>().ToTable("Carrinhos");
+            modelBuilder.Entity<CarrinhoItem>().ToTable("CarrinhosItens");
+            modelBuilder.Entity<Avaliacao>().ToTable("Avaliacoes");
+            modelBuilder.Entity<Pagamento>().ToTable("Pagamentos");
+
 
             // Garante que o ProdutoId e CategoriaId sejam gerados automaticamente com NEWID()
             modelBuilder.Entity<Produto>()
