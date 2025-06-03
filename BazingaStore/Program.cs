@@ -69,6 +69,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.MapIdentityApi<IdentityUser>();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 

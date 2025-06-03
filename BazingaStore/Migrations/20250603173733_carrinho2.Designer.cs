@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BazingaStore.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250603144640_Inicial")]
-    partial class Inicial
+    [Migration("20250603173733_carrinho2")]
+    partial class carrinho2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,7 +60,7 @@ namespace BazingaStore.Migrations
                     b.Property<bool>("Finalizado")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("Total")
+                    b.Property<decimal?>("Total")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("UsuarioId")
@@ -134,32 +134,6 @@ namespace BazingaStore.Migrations
                     b.HasKey("CupomDescontoId");
 
                     b.ToTable("CuponsDesconto", (string)null);
-                });
-
-            modelBuilder.Entity("BazingaStore.Model.ItemVenda", b =>
-                {
-                    b.Property<Guid>("ItemVendaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("PrecoUnitario")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("ProdutoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantidade")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("VendaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ItemVendaId");
-
-                    b.ToTable("ItensVenda", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pagamento", b =>
@@ -252,26 +226,6 @@ namespace BazingaStore.Migrations
                     b.HasIndex("CategoriaId");
 
                     b.ToTable("Produtos", (string)null);
-                });
-
-            modelBuilder.Entity("BazingaStore.Model.Venda", b =>
-                {
-                    b.Property<Guid>("VendaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DataVenda")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ValorTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("usuarioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("VendaId");
-
-                    b.ToTable("Vendas", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BazingaStore.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class newDaata : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

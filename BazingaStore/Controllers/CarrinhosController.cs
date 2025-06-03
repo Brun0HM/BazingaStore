@@ -73,12 +73,48 @@ namespace BazingaStore.Controllers
             return NoContent();
         }
 
-        // POST: api/Carrinhos
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Carrinhos  
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754  
         [HttpPost]
         public async Task<ActionResult<Carrinho>> PostCarrinho(Carrinho carrinho)
         {
-            _context.Carrinho.Add(carrinho);
+            // Verificar se os itens do carrinho não são nulos  
+            if (carrinho.Itens == null || !carrinho.Itens.Any())
+            {
+                return BadRequest("O carrinho deve conter pelo menos um item.");
+            }
+
+            // Carregar os produtos e atualizar os preços e totais dos itens  
+            foreach (var item in carrinho.Itens)
+            {
+                var produto = await _context.Produto.FindAsync(item.ProdutoId);
+                if (produto == null)
+                    return BadRequest($"Produto {item.ProdutoId} não encontrado.");
+
+                // Atualizar o preço do item com o preço do produto  
+                item.Preco = produto;
+            }
+
+            // Calcular o total do carrinho  
+            carrinho.Total = carrinho.Itens.Sum(i => i.Preco!.Preco * i.Quantidade);
+
+            // Se o carrinho já existe, atualiza; senão, adiciona  
+            var carrinhoExistente = await _context.Carrinho
+                .Include(c => c.Itens)
+                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinho.CarrinhoId);
+
+            if (carrinhoExistente != null)
+            {
+                // Atualiza os itens e o total  
+                carrinhoExistente.Itens = carrinho.Itens;
+                carrinhoExistente.Total = carrinho.Total;
+                _context.Entry(carrinhoExistente).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.Carrinho.Add(carrinho);
+            }
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCarrinho", new { id = carrinho.CarrinhoId }, carrinho);
@@ -106,53 +142,14 @@ namespace BazingaStore.Controllers
         }
 
         // Novo endpoint para atualizar a quantidade de produtos no carrinho
-        [HttpPut("{carrinhoId}/atualizar-quantidade")]
-        public async Task<IActionResult> AtualizarQuantidade(Guid carrinhoId, [FromBody] AtualizarQuantidadeRequest request)
+
+
+
+
+        public class AtualizarQuantidadeRequest
         {
-            var carrinho = await _context.Carrinho
-                .Include(c => c.Itens)
-                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinhoId);
-
-            if (carrinho == null)
-            {
-                return NotFound("Carrinho não encontrado.");
-            }
-
-            var item = carrinho.Itens.FirstOrDefault(i => i.CarrinhoItemId == request.CarrinhoItemId);
-            if (item == null)
-            {
-                return NotFound("Item não encontrado.");
-            }
-
-            item.Quantidade = request.Quantidade;
-            carrinho.Total = carrinho.Itens.Sum(i => i.PrecoUnitario * i.Quantidade);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(carrinho);
+            public Guid CarrinhoItemId { get; set; }
+            public int Quantidade { get; set; }
         }
-
-        // Novo endpoint para calcular o valor total dos produtos no carrinho
-        [HttpGet("{carrinhoId}/calcular-valor-total")]
-        public async Task<ActionResult<decimal>> CalcularValorTotal(Guid carrinhoId)
-        {
-            var carrinho = await _context.Carrinho
-                .Include(c => c.Itens)
-                .FirstOrDefaultAsync(c => c.CarrinhoId == carrinhoId);
-
-            if (carrinho == null)
-            {
-                return NotFound("Carrinho não encontrado.");
-            }
-
-            decimal valorTotalCarrinho = carrinho.Itens.Sum(item => item.PrecoUnitario * item.Quantidade);
-            return Ok(valorTotalCarrinho);
-        }
-    }
-
-    public class AtualizarQuantidadeRequest
-    {
-        public Guid CarrinhoItemId { get; set; }
-        public int Quantidade { get; set; }
     }
 }

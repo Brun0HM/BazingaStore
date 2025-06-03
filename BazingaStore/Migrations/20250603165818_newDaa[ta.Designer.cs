@@ -4,6 +4,7 @@ using BazingaStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BazingaStore.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250603165818_newDaa[ta")]
+    partial class newDaata
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace BazingaStore.Migrations
                     b.Property<bool>("Finalizado")
                         .HasColumnType("bit");
 
-                    b.Property<decimal?>("Total")
+                    b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("UsuarioId")
@@ -77,6 +80,9 @@ namespace BazingaStore.Migrations
                     b.Property<Guid>("CarrinhoId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<Guid>("ProdutoId")
                         .HasColumnType("uniqueidentifier");
 
@@ -86,8 +92,6 @@ namespace BazingaStore.Migrations
                     b.HasKey("CarrinhoItemId");
 
                     b.HasIndex("CarrinhoId");
-
-                    b.HasIndex("ProdutoId");
 
                     b.ToTable("CarrinhosItens", (string)null);
                 });
@@ -130,6 +134,32 @@ namespace BazingaStore.Migrations
                     b.HasKey("CupomDescontoId");
 
                     b.ToTable("CuponsDesconto", (string)null);
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.ItemVenda", b =>
+                {
+                    b.Property<Guid>("ItemVendaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("VendaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ItemVendaId");
+
+                    b.ToTable("ItensVenda", (string)null);
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pagamento", b =>
@@ -222,6 +252,26 @@ namespace BazingaStore.Migrations
                     b.HasIndex("CategoriaId");
 
                     b.ToTable("Produtos", (string)null);
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Venda", b =>
+                {
+                    b.Property<Guid>("VendaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DataVenda")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("usuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("VendaId");
+
+                    b.ToTable("Vendas", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -429,14 +479,6 @@ namespace BazingaStore.Migrations
                         .HasForeignKey("CarrinhoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("BazingaStore.Model.Produto", "Preco")
-                        .WithMany()
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Preco");
                 });
 
             modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
