@@ -75,14 +75,23 @@ namespace BazingaStore.Controllers
 
         // POST: api/Avaliacaos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Controllers/AvaliacaosController.cs
         [HttpPost]
         public async Task<ActionResult<Avaliacao>> PostAvaliacao(Avaliacao avaliacao)
         {
+            // Verifica se o produto existe
+            var produto = await _context.Produto.FindAsync(avaliacao.ProdutoId);
+            if (produto == null)
+                return NotFound("Produto não encontrado.");
+
             _context.Avaliacao.Add(avaliacao);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAvaliacao", new { id = avaliacao.AvaliacaoId }, avaliacao);
         }
+
+
+
 
         // DELETE: api/Avaliacaos/5
         [HttpDelete("{id}")]
