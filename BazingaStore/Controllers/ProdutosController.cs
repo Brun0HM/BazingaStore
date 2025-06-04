@@ -106,5 +106,37 @@ namespace BazingaStore.Controllers
         {
             return _context.Produto.Any(e => e.ProdutoId == id);
         }
+        // Adicione este endpoint ao seu ProdutosController
+
+        [HttpPost("{id}/imagem")]
+        public async Task<IActionResult> UploadImagem(Guid id, IFormFile imagem)
+        {
+            if (imagem == null || imagem.Length == 0)
+                return BadRequest("Nenhuma imagem enviada.");
+
+            var produto = await _context.Produto.FindAsync(id);
+            if (produto == null)
+                return NotFound();
+
+            // Exemplo: salvar a imagem em wwwroot/imagens
+            var pastaImagens = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagens");
+            if (!Directory.Exists(pastaImagens))
+                Directory.CreateDirectory(pastaImagens);
+
+            var nomeArquivo = $"{Guid.NewGuid()}{Path.GetExtension(imagem.FileName)}";
+            var caminhoArquivo = Path.Combine(pastaImagens, nomeArquivo);
+
+            using (var stream = new FileStream(caminhoArquivo, FileMode.Create))
+            {
+                await imagem.CopyToAsync(stream);
+            }
+
+            // Atualiza o campo Imagem do produto com o caminho relativo
+            produto.Imagem = $"/imagens/{nomeArquivo}";
+            _context.Entry(produto).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { imagemUrl = produto.Imagem });
+        }
     }
 }

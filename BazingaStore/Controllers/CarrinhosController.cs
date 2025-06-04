@@ -21,12 +21,50 @@ namespace BazingaStore.Controllers
             _context = context;
         }
 
-        // GET: api/Carrinhos
+
+        // Altere o método GetCarrinho em CarrinhosController
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Carrinho>>> GetCarrinho()
         {
-            return await _context.Carrinho.ToListAsync();
+            var carrinhos = await _context.Carrinho
+                .Include(c => c.Itens)
+                .ThenInclude(i => i.Preco)
+                .ToListAsync();
+
+            foreach (var carrinho in carrinhos)
+            {
+                if (carrinho.Itens != null)
+                {
+                    decimal total = 0;
+                    foreach (var item in carrinho.Itens)
+                    {
+                        decimal precoItem;
+                        if (item.Preco != null)
+                        {
+                            precoItem = item.Preco.Preco;
+                        }
+                        else
+                        {
+                            // Busca o produto para pegar o preço atual
+                            var produto = await _context.Produto.FindAsync(item.ProdutoId);
+                            precoItem = produto?.Preco ?? 0;
+                        }
+                        total += precoItem * item.Quantidade;
+                    }
+                    carrinho.Total = total;
+                }
+                else
+                {
+                    carrinho.Total = 0;
+                }
+            }
+
+            return carrinhos;
         }
+
+
+
 
         // GET: api/Carrinhos/5
         [HttpGet("{id}")]
