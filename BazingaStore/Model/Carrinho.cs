@@ -6,6 +6,5 @@
         public Guid UsuarioId { get; set; }
         public List<CarrinhoItem>? Itens { get; set; } = new List<CarrinhoItem>();
         public decimal? Total { get; set; } = 0;
-        public bool Finalizado { get; set; } = false;
     }
 }

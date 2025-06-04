@@ -4,6 +4,7 @@
     {
         public Guid PagamentoId { get; set; }
         public Guid PedidoId { get; set; }
+        public Guid CarrinhoId { get; set; }
         public enum MetodoPagamento
         {
             CartaoCredito,
@@ -11,13 +12,7 @@
             Boleto,
             Pix
         }
-        public enum StatusPagamento
-        {
-            Aprovado,
-            aguardando,
-            Pago,
-            Recusado
-        }
+
         public DateTime DataPagamento { get; set; }
     }
 }

@@ -75,14 +75,43 @@ namespace BazingaStore.Controllers
 
         // POST: api/Pagamentos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Controllers/PagamentosController.cs
+
+        // Controllers/PagamentosController.cs
+
         [HttpPost]
-        public async Task<ActionResult<Pagamento>> PostPagamento(Pagamento pagamento)
+        public async Task<ActionResult<Pagamento>> CreatePagamento(Pagamento pagamento)
         {
+            // Adiciona o pagamento
             _context.Pagamento.Add(pagamento);
             await _context.SaveChangesAsync();
 
+            // Busca o pedido relacionado ao pagamento
+            var pedido = await _context.Pedido.FindAsync(pagamento.PedidoId);
+
+            if (pedido == null)
+            {
+                // Se não existir pedido, cria um novo pedido (ajuste conforme sua lógica de negócio)
+                pedido = new Pedido
+                {
+                    PedidoId = pagamento.PedidoId,
+                    DataPedido = DateTime.Now
+                    // Adicione outros campos obrigatórios conforme necessário
+                };
+                _context.Pedido.Add(pedido);
+                await _context.SaveChangesAsync();
+            }
+
+            // Busca o carrinho relacionado ao pagamento (usando CarrinhoId do pagamento)
+            var carrinho = await _context.Carrinho
+                .FirstOrDefaultAsync(c => c.CarrinhoId == pagamento.CarrinhoId);
+
+
+
             return CreatedAtAction("GetPagamento", new { id = pagamento.PagamentoId }, pagamento);
         }
+
+
 
         // DELETE: api/Pagamentos/5
         [HttpDelete("{id}")]

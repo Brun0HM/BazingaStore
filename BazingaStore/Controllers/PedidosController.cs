@@ -91,27 +91,7 @@ namespace BazingaStore.Controllers
             if (user == null)
                 return NotFound("Usuário não encontrado");
 
-            // Buscar produto e cupom
-            var produto = await _context.Produto.FindAsync(pedido.ProdutoId);
-            if (produto == null)
-                return NotFound("Produto não encontrado");
 
-            CupomDesconto cupom = null;
-            decimal valorOriginal = produto.Preco;
-            decimal valorDesconto = 0;
-
-            if (pedido.CupomDescontoId.HasValue)
-            {
-                cupom = await _context.CupomDesconto.FindAsync(pedido.CupomDescontoId.Value);
-                if (cupom == null || !cupom.Ativo || cupom.DataValidade < DateTime.UtcNow)
-                    return BadRequest("Cupom inválido");
-
-                valorDesconto = valorOriginal * (cupom.PercentualDesconto / 100m);
-            }
-
-            decimal valorTotal = valorOriginal - valorDesconto;
-            _context.Pedido.Add(pedido);
-            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetPedido", new { id = pedido.PedidoId }, pedido);
         }
