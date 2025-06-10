@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BazingaStore.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20250603173733_carrinho2")]
-    partial class carrinho2
+    [Migration("20250610114922_incio4")]
+    partial class incio4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,9 +57,6 @@ namespace BazingaStore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Finalizado")
-                        .HasColumnType("bit");
-
                     b.Property<decimal?>("Total")
                         .HasColumnType("decimal(18,2)");
 
@@ -80,9 +77,6 @@ namespace BazingaStore.Migrations
                     b.Property<Guid>("CarrinhoId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("PrecoUnitario")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<Guid>("ProdutoId")
                         .HasColumnType("uniqueidentifier");
 
@@ -92,6 +86,8 @@ namespace BazingaStore.Migrations
                     b.HasKey("CarrinhoItemId");
 
                     b.HasIndex("CarrinhoId");
+
+                    b.HasIndex("ProdutoId");
 
                     b.ToTable("CarrinhosItens", (string)null);
                 });
@@ -142,6 +138,9 @@ namespace BazingaStore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CarrinhoId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("DataPagamento")
                         .HasColumnType("datetime2");
 
@@ -159,14 +158,8 @@ namespace BazingaStore.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CupomDescontoId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("DataPedido")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ProdutoId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -174,20 +167,7 @@ namespace BazingaStore.Migrations
                     b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal?>("ValorDesconto")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("ValorOriginal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("ValorTotal")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("PedidoId");
-
-                    b.HasIndex("CupomDescontoId");
-
-                    b.HasIndex("ProdutoId");
 
                     b.HasIndex("UserId1");
 
@@ -433,27 +413,21 @@ namespace BazingaStore.Migrations
                         .HasForeignKey("CarrinhoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
-                {
-                    b.HasOne("BazingaStore.Model.CupomDesconto", "Cupom")
-                        .WithMany()
-                        .HasForeignKey("CupomDescontoId");
-
-                    b.HasOne("BazingaStore.Model.Produto", "Produto")
+                    b.HasOne("BazingaStore.Model.Produto", "Preco")
                         .WithMany()
                         .HasForeignKey("ProdutoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Preco");
+                });
+
+            modelBuilder.Entity("BazingaStore.Model.Pedido", b =>
+                {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId1");
-
-                    b.Navigation("Cupom");
-
-                    b.Navigation("Produto");
 
                     b.Navigation("User");
                 });

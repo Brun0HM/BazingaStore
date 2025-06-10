@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BazingaStore.Migrations
 {
     /// <inheritdoc />
-    public partial class newDaata : Migration
+    public partial class incio4 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,8 +72,7 @@ namespace BazingaStore.Migrations
                 {
                     CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Finalizado = table.Column<bool>(type: "bit", nullable: false)
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -108,46 +107,17 @@ namespace BazingaStore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItensVenda",
-                columns: table => new
-                {
-                    ItemVendaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    VendaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProdutoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantidade = table.Column<int>(type: "int", nullable: false),
-                    PrecoUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ItensVenda", x => x.ItemVendaId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Pagamentos",
                 columns: table => new
                 {
                     PagamentoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PedidoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DataPagamento = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pagamentos", x => x.PagamentoId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Vendas",
-                columns: table => new
-                {
-                    VendaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    usuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DataVenda = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ValorTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Vendas", x => x.VendaId);
                 });
 
             migrationBuilder.CreateTable(
@@ -257,24 +227,22 @@ namespace BazingaStore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CarrinhosItens",
+                name: "Pedidos",
                 columns: table => new
                 {
-                    CarrinhoItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProdutoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantidade = table.Column<int>(type: "int", nullable: false),
-                    PrecoUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    PedidoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    DataPedido = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CarrinhosItens", x => x.CarrinhoItemId);
+                    table.PrimaryKey("PK_Pedidos", x => x.PedidoId);
                     table.ForeignKey(
-                        name: "FK_CarrinhosItens_Carrinhos_CarrinhoId",
-                        column: x => x.CarrinhoId,
-                        principalTable: "Carrinhos",
-                        principalColumn: "CarrinhoId",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Pedidos_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -301,34 +269,25 @@ namespace BazingaStore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Pedidos",
+                name: "CarrinhosItens",
                 columns: table => new
                 {
-                    PedidoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CarrinhoItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CarrinhoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProdutoId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CupomDescontoId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ValorOriginal = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ValorDesconto = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    ValorTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    DataPedido = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Quantidade = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Pedidos", x => x.PedidoId);
+                    table.PrimaryKey("PK_CarrinhosItens", x => x.CarrinhoItemId);
                     table.ForeignKey(
-                        name: "FK_Pedidos_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        name: "FK_CarrinhosItens_Carrinhos_CarrinhoId",
+                        column: x => x.CarrinhoId,
+                        principalTable: "Carrinhos",
+                        principalColumn: "CarrinhoId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Pedidos_CuponsDesconto_CupomDescontoId",
-                        column: x => x.CupomDescontoId,
-                        principalTable: "CuponsDesconto",
-                        principalColumn: "CupomDescontoId");
-                    table.ForeignKey(
-                        name: "FK_Pedidos_Produtos_ProdutoId",
+                        name: "FK_CarrinhosItens_Produtos_ProdutoId",
                         column: x => x.ProdutoId,
                         principalTable: "Produtos",
                         principalColumn: "ProdutoId",
@@ -380,13 +339,8 @@ namespace BazingaStore.Migrations
                 column: "CarrinhoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pedidos_CupomDescontoId",
-                table: "Pedidos",
-                column: "CupomDescontoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Pedidos_ProdutoId",
-                table: "Pedidos",
+                name: "IX_CarrinhosItens_ProdutoId",
+                table: "CarrinhosItens",
                 column: "ProdutoId");
 
             migrationBuilder.CreateIndex(
@@ -425,7 +379,7 @@ namespace BazingaStore.Migrations
                 name: "CarrinhosItens");
 
             migrationBuilder.DropTable(
-                name: "ItensVenda");
+                name: "CuponsDesconto");
 
             migrationBuilder.DropTable(
                 name: "Pagamentos");
@@ -434,22 +388,16 @@ namespace BazingaStore.Migrations
                 name: "Pedidos");
 
             migrationBuilder.DropTable(
-                name: "Vendas");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Carrinhos");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "CuponsDesconto");
-
-            migrationBuilder.DropTable(
                 name: "Produtos");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Categorias");
