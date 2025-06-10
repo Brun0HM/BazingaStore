@@ -2,13 +2,12 @@ using BazingaStore.Data;
 using BazingaStore.Model; // não esquece esse using
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using System.Security.Claims;
+using Microsoft.OpenApi.Models; // Esse using é importante para o Swagger
+using System.Security.Claims; // Esse using é importante para Claims
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -37,43 +36,58 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// ----------------------------------------------------------------------
+// Configuração do Swagger/OpenAPI - ATIVA APENAS EM AMBIENTE DE DESENVOLVIMENTO
+// ----------------------------------------------------------------------
+if (builder.Environment.IsDevelopment()) // Verifica se o ambiente é "Development"
 {
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
     {
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            new OpenApiSecurityScheme
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            Description = "Entre com 'Bearer ' [espaço] e então seu token no campo abaixo.\n\nExemplo: \"Bearer seu_token_aqui\""
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+        {
             {
-                Reference = new OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    },
+                    Scheme = "oauth2",
+                    Name = "Bearer",
+                    In = ParameterLocation.Header,
                 },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-            },
-            new List<string>()
-        }
+                new List<string>()
+            }
+        });
     });
-});
+}
+// ----------------------------------------------------------------------
 
 var app = builder.Build();
 
 app.MapIdentityApi<IdentityUser>();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
+// ----------------------------------------------------------------------
+// Middleware do Swagger/OpenAPI - ATIVA APENAS EM AMBIENTE DE DESENVOLVIMENTO
+// ----------------------------------------------------------------------
+if (app.Environment.IsDevelopment()) // Verifica se o ambiente é "Development"
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+// ----------------------------------------------------------------------
 
 app.UseHttpsRedirection();
 
@@ -85,4 +99,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
