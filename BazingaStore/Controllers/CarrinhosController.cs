@@ -116,12 +116,6 @@ namespace BazingaStore.Controllers
         [HttpPost]
         public async Task<ActionResult<Carrinho>> PostCarrinho(Carrinho carrinho)
         {
-            // Verificar se os itens do carrinho não são nulos  
-            if (carrinho.Itens == null || !carrinho.Itens.Any())
-            {
-                return BadRequest("O carrinho deve conter pelo menos um item.");
-            }
-
             // Carregar os produtos e atualizar os preços e totais dos itens  
             foreach (var item in carrinho.Itens)
             {
