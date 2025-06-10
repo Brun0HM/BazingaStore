@@ -22,25 +22,11 @@ namespace BazingaStore.Controllers
         }
 
         // GET: api/Produtos
-        // Controllers/ProdutosController.cs
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProduto()
         {
-            var produtos = await _context.Produto.ToListAsync();
-
-            // Busca as médias das avaliações para cada produto
-            foreach (var produto in produtos)
-            {
-                var avaliacoes = await _context.Avaliacao
-                    .Where(a => a.ProdutoId == produto.ProdutoId)
-                    .ToListAsync();
-
-                produto.MediaAvaliacao = avaliacoes.Any() ? avaliacoes.Average(a => a.Nota) : null;
-            }
-
-            return produtos;
+            return await _context.Produto.ToListAsync();
         }
-
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
