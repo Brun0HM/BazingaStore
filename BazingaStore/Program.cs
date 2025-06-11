@@ -30,7 +30,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://192.168.0.179:3000") //frontEnd local
+       .AllowAnyHeader()
+       .AllowAnyMethod()
+       .AllowCredentials();
+
     });
 });
 
@@ -74,20 +78,30 @@ if (builder.Environment.IsDevelopment()) // Verifica se o ambiente é "Developmen
     });
 }
 // ----------------------------------------------------------------------
+//configuração para uso de cookies
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/logout";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.SlidingExpiration = true;
+});
+
+
+
+
 
 var app = builder.Build();
 
 app.MapIdentityApi<IdentityUser>();
 
 // ----------------------------------------------------------------------
-// Middleware do Swagger/OpenAPI - ATIVA APENAS EM AMBIENTE DE DESENVOLVIMENTO
+// Middleware do Swagger/OpenAPI - SEMPRE ATIVO
 // ----------------------------------------------------------------------
-if (app.Environment.IsDevelopment()) // Verifica se o ambiente é "Development"
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 // ----------------------------------------------------------------------
+
 
 app.UseHttpsRedirection();
 
