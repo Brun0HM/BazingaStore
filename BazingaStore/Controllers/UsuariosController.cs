@@ -26,28 +26,58 @@ namespace BazingaStore.Controllers
         }
 
 
-        // Endpoint para listar todos os usuarios do Identity
+        // Endpoint para listar todos os usuários do Identity junto com suas roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IdentityUser>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<object>>> GetUsuarios(
+            [FromServices] UserManager<IdentityUser> userManager)
         {
             var usuarios = await _context.Users.ToListAsync();
             if (usuarios == null || !usuarios.Any())
             {
                 return NotFound("Nenhum usuário encontrado.");
             }
-            return Ok(usuarios);
+
+            var usuariosComRoles = new List<object>();
+
+            foreach (var usuario in usuarios)
+            {
+                var roles = await userManager.GetRolesAsync(usuario);
+                usuariosComRoles.Add(new
+                {
+                    usuario.Id,
+                    usuario.UserName,
+                    usuario.Email,
+                    Roles = roles
+                });
+            }
+
+            return Ok(usuariosComRoles);
         }
 
-        // Endpoint para pegar o Id do Identity User (usuário logado) através do token recebido no Header da Request
+        // Endpoint para pegar o Id do Identity User (usuário logado), email e role através do token recebido no Header da Request
         [HttpGet("meu-id")]
-        public ActionResult<string> GetMeuId()
+        public ActionResult<object> GetMeuId()
         {
-            var userId = User?.Identity?.IsAuthenticated == true ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
+            if (User?.Identity?.IsAuthenticated != true)
+            {
+                return Unauthorized("Usuário não autenticado.");
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized("Usuário não autenticado.");
             }
-            return Ok(userId);
+
+            return Ok(new
+            {
+                Id = userId,
+                Email = email,
+                Role = role
+            });
         }
 
 

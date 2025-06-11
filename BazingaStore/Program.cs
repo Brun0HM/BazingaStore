@@ -1,18 +1,60 @@
 using BazingaStore.Data;
-using BazingaStore.Model; // não esquece esse using
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; // Esse using é importante para o Swagger
-using System.Security.Claims; // Esse using é importante para Claims
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
+// Configurar a conexão com o banco de dados
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLSenai")));
 
-// Use apenas UM dos AddIdentityApiEndpoints, preferencialmente com seu modelo User
+// Configurar o CORS (Cross-Origin Resource Sharing)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
+});
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen();
+
+// Adionar o Swagger com JWT Bearer
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+    {
+        new OpenApiSecurityScheme
+        {
+        Reference = new OpenApiReference
+            {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+            },
+            Scheme = "oauth2",
+            Name = "Bearer",
+            In = ParameterLocation.Header,
+
+        },
+        new List<string>()
+        }
+    });
+});
+
+// Serviço de EndPoints do Identity Framework
 builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedEmail = false;
@@ -23,93 +65,33 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 4;
 })
-.AddEntityFrameworkStores<ApiDbContext>()
-.AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<ApiDbContext>()
+    .AddDefaultTokenProviders(); // Adiocionando o provedor de tokens padrão
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://192.168.0.179:3000") //frontEnd local
-       .AllowAnyHeader()
-       .AllowAnyMethod()
-       .AllowCredentials();
-
-    });
-});
-
-builder.Services.AddControllers();
-
-// ----------------------------------------------------------------------
-// Configuração do Swagger/OpenAPI - ATIVA APENAS EM AMBIENTE DE DESENVOLVIMENTO
-// ----------------------------------------------------------------------
-if (builder.Environment.IsDevelopment()) // Verifica se o ambiente é "Development"
-{
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            In = ParameterLocation.Header,
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            Description = "Entre com 'Bearer ' [espaço] e então seu token no campo abaixo.\n\nExemplo: \"Bearer seu_token_aqui\""
-        });
-
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    },
-                    Scheme = "oauth2",
-                    Name = "Bearer",
-                    In = ParameterLocation.Header,
-                },
-                new List<string>()
-            }
-        });
-    });
-}
-// ----------------------------------------------------------------------
-//configuração para uso de cookies
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/login";
-    options.LogoutPath = "/logout";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    options.SlidingExpiration = true;
-});
-
-
+// Add Services de Autenticação e Autorização
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
 
 
 var app = builder.Build();
 
-app.MapIdentityApi<IdentityUser>();
-
-// ----------------------------------------------------------------------
-// Middleware do Swagger/OpenAPI - SEMPRE ATIVO
-// ----------------------------------------------------------------------
+//Swagger em ambiente de produção
 app.UseSwagger();
 app.UseSwaggerUI();
-// ----------------------------------------------------------------------
 
+
+// Mapear os EdePoints padrão do Identity Framework
+app.MapGroup("/Users").MapIdentityApi<IdentityUser>();
+//app.MapGroup("/Roles").MapIdentityApi<IdentityRole>();
 
 app.UseHttpsRedirection();
-
-app.UseCors();
-
+//Permitir a autenticação e autorização de qualquer origem
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAll");
 
 app.MapControllers();
 
 app.Run();
+
