@@ -79,6 +79,30 @@ namespace BazingaStore.Controllers
                 Role = role
             });
         }
+        // Adicione este método dentro da classe UsuariosController
+
+
+
+        // DELETE: api/Usuarios/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUsuario(
+            string id,
+            [FromServices] UserManager<IdentityUser> userManager)
+        {
+            var usuario = await userManager.FindByIdAsync(id);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var result = await userManager.DeleteAsync(usuario);
+            if (!result.Succeeded)
+            {
+                return BadRequest("Erro ao excluir o usuário.");
+            }
+
+            return NoContent();
+        }
 
 
     }
