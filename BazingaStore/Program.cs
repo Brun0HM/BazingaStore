@@ -7,7 +7,7 @@ using System.Security.Claims; // Esse using é importante para Claims
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("SQLSenai");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -23,8 +23,13 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 4;
 })
+
+ .AddRoles<IdentityRole>() // <- ISSO É ESSENCIAL!
+
+
 .AddEntityFrameworkStores<ApiDbContext>()
 .AddDefaultTokenProviders();
+
 
 builder.Services.AddCors(options =>
 {
