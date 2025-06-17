@@ -104,6 +104,30 @@ namespace BazingaStore.Controllers
             return NoContent();
         }
 
+        [HttpGet("por-email")]
+        public async Task<IActionResult> GetUsuarioPorEmail(
+    [FromQuery] string email,
+    [FromServices] UserManager<IdentityUser> userManager)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest("E-mail é obrigatório.");
+
+            var usuario = await userManager.FindByEmailAsync(email);
+
+            if (usuario == null)
+                return NotFound("Usuário não encontrado.");
+
+            var roles = await userManager.GetRolesAsync(usuario);
+
+            return Ok(new
+            {
+                usuario.Id,
+                usuario.UserName,
+                usuario.Email,
+                Roles = roles
+            });
+        }
+
 
     }
 }

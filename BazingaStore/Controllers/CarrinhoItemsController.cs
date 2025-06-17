@@ -23,9 +23,26 @@ namespace BazingaStore.Controllers
 
         // GET: api/CarrinhoItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CarrinhoItem>>> GetCarrinhoItem()
+        public async Task<ActionResult<IEnumerable<object>>> GetCarrinhoItem()
         {
-            return await _context.CarrinhoItem.ToListAsync();
+            var itens = await _context.CarrinhoItem
+                .Include(ci => ci.Produto)
+                .Select(ci => new
+                {
+                    ci.CarrinhoItemId,
+                    ci.CarrinhoId,
+                    ci.ProdutoId,
+                    ci.Quantidade,
+                    Produto = ci.Produto == null ? null : new
+                    {
+                        ci.Produto.Nome,
+                        ci.Produto.Preco,
+                        ci.Produto.Imagem
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(itens);
         }
 
         // GET: api/CarrinhoItems/5

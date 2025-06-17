@@ -29,7 +29,7 @@ namespace BazingaStore.Controllers
         {
             var carrinhos = await _context.Carrinho
                 .Include(c => c.Itens)
-                .ThenInclude(i => i.Preco)
+                .ThenInclude(i => i.Produto)
                 .ToListAsync();
 
             foreach (var carrinho in carrinhos)
@@ -40,9 +40,9 @@ namespace BazingaStore.Controllers
                     foreach (var item in carrinho.Itens)
                     {
                         decimal precoItem;
-                        if (item.Preco != null)
+                        if (item.Produto != null)
                         {
-                            precoItem = item.Preco.Preco;
+                            precoItem = item.Produto.Preco;
                         }
                         else
                         {
@@ -124,11 +124,11 @@ namespace BazingaStore.Controllers
                     return BadRequest($"Produto {item.ProdutoId} não encontrado.");
 
                 // Atualizar o preço do item com o preço do produto  
-                item.Preco = produto;
+                item.Produto = produto;
             }
 
             // Calcular o total do carrinho  
-            carrinho.Total = carrinho.Itens.Sum(i => i.Preco!.Preco * i.Quantidade);
+            carrinho.Total = carrinho.Itens.Sum(i => i.Produto!.Preco * i.Quantidade);
 
             // Se o carrinho já existe, atualiza; senão, adiciona  
             var carrinhoExistente = await _context.Carrinho

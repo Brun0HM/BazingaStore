@@ -7,7 +7,8 @@
         public Guid ProdutoId { get; set; }
         public int Quantidade { get; set; }
 
-        public Produto? Preco { get; set; }
+        public Produto? Produto { get; set; }
+
 
 
 
