@@ -23,23 +23,52 @@ namespace BazingaStore.Controllers
 
         // GET: api/Produtos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Produto>>> GetProduto()
+        public async Task<ActionResult<IEnumerable<object>>> GetProduto()
         {
-            return await _context.Produto.ToListAsync();
+            var produtos = await _context.Produto
+                .Include(p => p.Categoria)
+                .Select(p => new
+                {
+                    p.ProdutoId,
+                    p.Nome,
+                    p.Descricao,
+                    p.Preco,
+                    p.Imagem,
+                    p.Estoque,
+                    p.CategoriaId,
+                    CategoriaNome = p.Categoria != null ? p.Categoria.CategoriaNome : null
+                })
+                .ToListAsync();
+
+            return Ok(produtos);
         }
 
         // GET: api/Produtos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Produto>> GetProduto(Guid id)
+        public async Task<ActionResult<object>> GetProduto(Guid id)
         {
-            var produto = await _context.Produto.FindAsync(id);
+            var produto = await _context.Produto
+                .Include(p => p.Categoria)
+                .Where(p => p.ProdutoId == id)
+                .Select(p => new
+                {
+                    p.ProdutoId,
+                    p.Nome,
+                    p.Descricao,
+                    p.Preco,
+                    p.Imagem,
+                    p.Estoque,
+                    p.CategoriaId,
+                    CategoriaNome = p.Categoria != null ? p.Categoria.CategoriaNome : null
+                })
+                .FirstOrDefaultAsync();
 
             if (produto == null)
             {
                 return NotFound();
             }
 
-            return produto;
+            return Ok(produto);
         }
 
         // PUT: api/Produtos/5

@@ -128,6 +128,51 @@ namespace BazingaStore.Controllers
             });
         }
 
+        // PUT: api/Usuarios/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutUsuario(
+     string id,
+     [FromBody] UsuarioUpdateDto usuarioAtualizado,
+     [FromServices] UserManager<IdentityUser> userManager,
+     [FromServices] RoleManager<IdentityRole> roleManager)
+        {
+            var usuario = await userManager.FindByIdAsync(id);
+            if (usuario == null)
+                return NotFound("Usuário não encontrado.");
+
+            if (!string.IsNullOrWhiteSpace(usuarioAtualizado.UserName))
+                usuario.UserName = usuarioAtualizado.UserName;
+
+            if (!string.IsNullOrWhiteSpace(usuarioAtualizado.Email))
+                usuario.Email = usuarioAtualizado.Email;
+
+            var result = await userManager.UpdateAsync(usuario);
+            if (!result.Succeeded)
+                return BadRequest("Erro ao atualizar o usuário.");
+
+            // Atualizar roles, se informado
+            if (usuarioAtualizado.Roles != null && usuarioAtualizado.Roles.Any())
+            {
+                var rolesAtuais = await userManager.GetRolesAsync(usuario);
+                var removeResult = await userManager.RemoveFromRolesAsync(usuario, rolesAtuais);
+                if (!removeResult.Succeeded)
+                    return BadRequest("Erro ao remover roles antigas.");
+
+                foreach (var role in usuarioAtualizado.Roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        return BadRequest($"Role '{role}' não existe.");
+
+                    var addResult = await userManager.AddToRoleAsync(usuario, role);
+                    if (!addResult.Succeeded)
+                        return BadRequest($"Erro ao adicionar a role '{role}'.");
+                }
+            }
+
+            return NoContent();
+        }
+
+
 
     }
 }

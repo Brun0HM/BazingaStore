@@ -16,8 +16,7 @@ namespace BazingaStore.Controllers
             _userManager = userManager;
         }
 
-        // ✅ Somente usuários autenticados podem deslogar
-        [Authorize]
+        // ✅ Somente usuários autenticados podem desloga
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
